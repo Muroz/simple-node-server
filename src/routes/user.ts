@@ -63,4 +63,17 @@ router.patch('/users/:id', async (req, res) => {
   }
 });
 
+router.delete('/users/:id', async (req, res) => {
+  try {
+    await User.findOneAndDelete({
+      _id: req.params.id,
+    });
+
+    return res.status(200).send({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: 'Something went wrong, please try again!' });
+  }
+});
+
 export default router;
