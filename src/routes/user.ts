@@ -1,14 +1,17 @@
 import { Router } from 'express';
+import { hasValidIdParam } from '../middleware/validation';
 import { Indexable } from '../types/interfaces';
 import User from '../models/user/user';
 
 const router = Router();
 
-router.get('/users', async (req, res) => {
-  try {
-    const result = await User.find();
+router.get('/users/:id', hasValidIdParam, async (req, res) => {
+  const userId: string = req.params.id;
 
-    return res.send({ users: result });
+  try {
+    const user = await User.findOne({ _id: userId });
+
+    return res.send({ user });
   } catch (error) {
     console.log(error);
     return res
@@ -17,15 +20,11 @@ router.get('/users', async (req, res) => {
   }
 });
 
-router.get('/users/:id', async (req, res) => {
-  const userId: string | undefined = req.params.id;
-
+router.get('/users', async (req, res) => {
   try {
-    const user = await User.find({ _id: userId });
-    if (!user) {
-      return res.status(404).send({ error: 'User not found!' });
-    }
-    return res.send({ user });
+    const users = await User.find();
+
+    return res.send({ users });
   } catch (error) {
     console.log(error);
     return res
@@ -47,22 +46,13 @@ router.post('/users', async (req, res) => {
   }
 });
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/:id', hasValidIdParam, async (req, res) => {
   const updates = Object.keys(req.body);
-
-  const userId: string | undefined = req.params.id;
-
-  if (!userId) {
-    return res.status(404).send({ err: 'No user id provided' });
-  }
+  const userId: string = req.params.id;
 
   try {
     const validUpdateValues = ['name', 'address', 'phoneNumber', 'email'];
     const user: Indexable<{}> = await User.findOne({ _id: userId });
-
-    if (!user) {
-      return res.status(404).send({ err: 'User not found' });
-    }
 
     updates.forEach((updateKey: string) => {
       const updateValue = req.body[updateKey];
@@ -80,7 +70,7 @@ router.patch('/users/:id', async (req, res) => {
   }
 });
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/:id', hasValidIdParam, async (req, res) => {
   try {
     await User.findOneAndDelete({
       _id: req.params.id,
@@ -89,7 +79,9 @@ router.delete('/users/:id', async (req, res) => {
     return res.status(200).send({ message: 'User deleted successfully' });
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: 'Something went wrong, please try again!' });
+    return res
+      .status(500)
+      .send({ error: 'Something went wrong, please try again!' });
   }
 });
 
