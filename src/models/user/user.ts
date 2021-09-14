@@ -28,11 +28,13 @@ const userSchema = new Schema({
   phoneNumber: {
     type: String,
     trim: true,
+    required: true,
   },
   email: {
     type: String,
     trim: true,
     lowecase: true,
+    required: true,
   },
 });
 

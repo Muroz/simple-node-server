@@ -1,7 +1,8 @@
 import { Router } from 'express';
+
 import { hasValidIdParam } from '../middleware/validation';
-import { Indexable } from '../types/interfaces';
 import User from '../models/user/user';
+import { Indexable } from '../types/interfaces';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.post('/users', async (req, res) => {
     res.status(201).send({ user });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ error: 'Something went wrong, please try again!' });
+    res.status(400).send({ error });
   }
 });
 
