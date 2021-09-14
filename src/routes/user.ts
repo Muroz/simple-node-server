@@ -17,6 +17,23 @@ router.get('/users', async (req, res) => {
   }
 });
 
+router.get('/users/:id', async (req, res) => {
+  const userId: string | undefined = req.params.id;
+
+  try {
+    const user = await User.find({ _id: userId });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found!' });
+    }
+    return res.send({ user });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ error: 'Something went wrong, please try again!' });
+  }
+});
+
 router.post('/users', async (req, res) => {
   try {
     const user = new User(req.body);
